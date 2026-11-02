@@ -84,6 +84,7 @@ public:
     void resetMidiMap();
     std::atomic<bool> latchingPedals { false };    // pedal sends 127 / 0 on alternate presses
     std::atomic<float> uiScale { 0.67f };          // window scale (0.67 = default, never smaller)
+    std::atomic<bool>  uiScaleSet { false };       // true = taille choisie pour cette instance (sinon taille par défaut des nouvelles fenêtres)
 
     juce::AudioProcessorValueTreeState apvts;
 

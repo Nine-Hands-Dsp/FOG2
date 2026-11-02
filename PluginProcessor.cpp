@@ -500,6 +500,7 @@ void FogProcessor::getStateInformation (juce::MemoryBlock& dest)
     state.setProperty ("selected", selected.load(), nullptr);
     state.setProperty ("loaded", loaded.load(), nullptr);
     state.setProperty ("uiScale2", uiScale.load(), nullptr);
+    state.setProperty ("uiScaleSet", uiScaleSet.load(), nullptr);
     state.setProperty ("ccPreset", ccMap[learnPresetFs].load(), nullptr);    // anciennes versions
     state.setProperty ("ccBypass", ccMap[learnBypassFs].load(), nullptr);
     for (int i = 0; i < numLearn; ++i)
@@ -534,6 +535,9 @@ void FogProcessor::setStateInformation (const void* data, int size)
     selected   = juce::jlimit (0, 7, (int) state.getProperty ("selected", 0));
     loaded     = juce::jlimit (-1, 7, (int) state.getProperty ("loaded", -1));
     uiScale    = juce::jlimit (0.67f, 1.25f, (float) state.getProperty ("uiScale2", 0.67f));
+    // projets d'avant la v1.5 : une taille différente de 67 % avait été choisie pour cette instance
+    uiScaleSet = state.hasProperty ("uiScaleSet") ? (bool) state.getProperty ("uiScaleSet")
+                                                  : std::abs (uiScale.load() - 0.67f) > 0.005f;
     // assignations MIDI Learn (projet d'avant la v1.4 : footswitches ccPreset / ccBypass, le reste non assigné)
     for (int i = 0; i < numLearn; ++i)
     {

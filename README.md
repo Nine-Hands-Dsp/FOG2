@@ -2,6 +2,7 @@
 
 Plugin VST3 (Windows 64 bits + macOS universel Apple Silicon/Intel) qui copie la pédale **Electro-Harmonix POG2** (Polyphonic Octave Generator), sur le visuel « FOGZ ».
 
+v1.5.0 : clic droit > Plugin size > Default size (new windows) : taille par défaut des nouvelles fenêtres au choix, comme dans Octopus
 v1.4.0 : MIDI Learn au clic droit sur chaque commande (Clear MIDI, assignations sauvegardées avec le projet)
 v1.3.0 : anti-gel v2 (JUCE 8.0.15, caches refaits par le timer, chien de garde, aucun appel à l'hôte depuis le thread audio)
 
@@ -14,7 +15,7 @@ v1.3.0 : anti-gel v2 (JUCE 8.0.15, caches refaits par le timer, chien de garde, 
 4. Reaper : re-scanne. Le plugin s'appelle **Fog Z (Studio Wiga)**.
 
 ## Fenêtre
-Même taille que Ring Think : 665 × 498 par défaut (67 %), jamais plus petite. Clic droit → Plugin size : 67 / 75 / 100 / 125 %, ou tirer le coin.
+Même taille que Ring Think : 665 × 498 par défaut (67 %), jamais plus petite. Clic droit → Plugin size : 60 / 75 / 100 / 125 % pour cette fenêtre, ou tirer le coin ; *Default size (new windows)* choisit la taille d'ouverture de toutes les nouvelles fenêtres de Fog Z (réglage enregistré dans `Studio Wiga/Fog Z/settings.xml` du dossier de données de l'utilisateur, comme Octopus). Une taille choisie pour une instance reste sauvegardée avec le projet et l'emporte.
 
 ## Presets
 - Les **12 sons** apparaissent dans le menu déroulant des presets de la fenêtre du plugin (Reaper : liste en haut à gauche) et dans clic droit → Factory sounds.

@@ -1,5 +1,6 @@
 #include "PluginEditor.h"
 #include "BinaryData.h"
+#include "WigaWindowSize.h"
 
 // =============================================================================
 //  Geometry - every coordinate is in background.png pixels (1240 x 928)
@@ -11,7 +12,8 @@ namespace
     constexpr float kBaseW = 993.0f, kBaseH = 743.0f;
     constexpr float kDefaultScale = 0.67f;
     constexpr float kMaxScale     = 1.25f;
-    const float     kMenuScales[4] = { 0.67f, 0.75f, 1.0f, 1.25f };
+    constexpr int   kNumSizes = 4;
+    const float     kMenuScales[kNumSizes] = { 0.67f, 0.75f, 1.0f, 1.25f };
 
     const float slotX[8]  = { 175.9f, 275.6f, 375.4f, 474.4f, 574.9f, 772.3f, 869.3f, 968.4f };
     constexpr float travelTop = 193.0f, travelBot = 448.0f;
@@ -673,11 +675,19 @@ static void showMainMenu (PedalContent& pc, juce::Component* from, int learnIdx)
     if (learnIdx >= 0) addLearnSection (m, proc, learnIdx);
     m.addSectionHeader ("Fog Z  -  Studio Wiga");
 
+    // Plugin size : taille de cette fenêtre + taille par défaut des nouvelles fenêtres (comme Octopus)
     PopupMenu size; size.setLookAndFeel (&menuLnF());
+    PopupMenu defSize; defSize.setLookAndFeel (&menuLnF());
     const float cur = ed->getScale();
-    for (int i = 0; i < 4; ++i)
-        size.addItem (100 + i, i == 0 ? String ("60 % (default)") : String (roundToInt (kMenuScales[i] * 100)) + " %",
-                      true, std::abs (cur - kMenuScales[i]) < 0.01f);
+    const int def = WigaWindowSize::defaultIndex (JucePlugin_Name, kNumSizes);
+    for (int i = 0; i < kNumSizes; ++i)
+    {
+        const String name = i == 0 ? String ("60 %") : String (roundToInt (kMenuScales[i] * 100)) + " %";
+        size.addItem (100 + i, name + (i == def ? "  (default)" : ""), true, std::abs (cur - kMenuScales[i]) < 0.01f);
+        defSize.addItem (110 + i, name, true, i == def);
+    }
+    size.addSeparator();
+    size.addSubMenu ("Default size (new windows)", defSize);
     m.addSubMenu ("Plugin size", size);
 
     PopupMenu fac; fac.setLookAndFeel (&menuLnF());
@@ -703,7 +713,13 @@ static void showMainMenu (PedalContent& pc, juce::Component* from, int learnIdx)
     m.showMenuAsync (menuOptions(), [sp, ed, &proc] (int r)
     {
         if (sp == nullptr || r == 0) return;
-        if (r >= 100 && r < 104)      ed->setScale (kMenuScales[r - 100]);
+        if (r >= 100 && r < 100 + kNumSizes) ed->setScale (kMenuScales[r - 100]);
+        else if (r >= 110 && r < 110 + kNumSizes)
+        {
+            WigaWindowSize::setDefaultIndex (JucePlugin_Name, r - 110);   // toutes les nouvelles fenêtres de ce plugin
+            ed->setScale (kMenuScales[r - 110]);                          // et cette fenêtre tout de suite
+            proc.uiScaleSet = false;                                      // cette instance suit la taille par défaut
+        }
         else if (r >= 200 && r < 300) proc.applyFactory (r - 200);
         else if (r == 300)            proc.restoreFactorySlots();
         else if (r == 403)            proc.latchingPedals = ! proc.latchingPedals.load();
@@ -744,7 +760,11 @@ FogEditor::FogEditor (FogProcessor& p) : AudioProcessorEditor (p), proc (p)
                      juce::roundToInt (kBaseW * kMaxScale),     juce::roundToInt (kBaseH * kMaxScale));
     getConstrainer()->setFixedAspectRatio ((double) kW / (double) kH);
     setOpaque (true);              // anti-gel : l'hôte ne redessine jamais ce qui est derrière la fenêtre
-    setScale (proc.uiScale.load());
+    // taille enregistrée pour cette instance (projet) si elle a été choisie, sinon taille par défaut
+    // des nouvelles fenêtres (clic droit > Plugin size > Default size (new windows))
+    setScale (proc.uiScaleSet.load() ? proc.uiScale.load()
+                                     : kMenuScales[WigaWindowSize::defaultIndex (JucePlugin_Name, kNumSizes)]);
+    sizeReady = true;
     content->initCaches();
 }
 
@@ -812,7 +832,10 @@ void FogEditor::resized()
     // anti-gel : jamais de setSize ici, les limites du constrainer suffisent ; le cache du fond est refait par le timer
     content->setTransform (juce::AffineTransform::scale ((float) getWidth() / (float) kW));
     content->editorResized();
-    proc.uiScale = juce::jlimit (kDefaultScale, kMaxScale, getScale());
+    const float s = juce::jlimit (kDefaultScale, kMaxScale, getScale());
+    if (sizeReady && std::abs (s - proc.uiScale.load()) > 0.005f)
+        proc.uiScaleSet = true;    // taille choisie par l'utilisateur (menu ou coin) : gardée pour cette instance
+    proc.uiScale = s;
 }
 
 void FogEditor::setScale (float s)

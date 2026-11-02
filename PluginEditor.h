@@ -22,6 +22,7 @@ private:
     void resetRenderer();          // chien de garde : oublie la fenêtre mémorisée et réapplique tout
     void* lastPeer = nullptr;
     double lastRendererCheckMs = 0.0;
+    bool sizeReady = false;        // false pendant le constructeur (taille d'ouverture, pas un choix de l'utilisateur)
     FogProcessor& proc;
     std::unique_ptr<PedalContent> content;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FogEditor)
