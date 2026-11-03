@@ -72,16 +72,17 @@ public:
     bool isBypassed() const { return bypassParam->get(); }
 
     // ---------------- MIDI : MIDI Learn sur toutes les commandes (v1.4) ----------------
-    // footswitches PRESET / BYPASS sur CC 80 / 81 par défaut (comme avant), les autres commandes non assignées
+    // v1.5.1 : aucun CC assigné par défaut ; legacyCC = ancienne table d'usine (footswitches CC 80 / 81),
+    // servant uniquement à reconnaître (et vider) une table jamais modifiée dans un ancien projet
     enum LearnType { learnContinuous, learnToggle, learnSelector, learnFootswitch };
-    struct LearnDef { const char* id; const char* name; int defaultCC; int type; int positions; };
+    struct LearnDef { const char* id; const char* name; int legacyCC; int type; int positions; };
     static constexpr int numLearn = 13;
     static constexpr int learnDryFx = 8, learnQ = 9, learnKnob = 10, learnPresetFs = 11, learnBypassFs = 12;
     static const LearnDef& learnDef (int i);
     std::atomic<int> ccMap[numLearn];             // numéro de CC de chaque commande, -1 = non assigné
     std::atomic<int> learnTarget { -1 };          // commande en attente d'un CC (-1 = pas de learn)
     std::atomic<int> lastLearned { -1 };          // dernière commande apprise (lue et remise à -1 par la fenêtre)
-    void resetMidiMap();
+    void clearMidiMap();                          // efface toutes les assignations (-1)
     std::atomic<bool> latchingPedals { false };    // pedal sends 127 / 0 on alternate presses
     std::atomic<float> uiScale { 0.67f };          // window scale (0.67 = default, never smaller)
     std::atomic<bool>  uiScaleSet { false };       // true = taille choisie pour cette instance (sinon taille par défaut des nouvelles fenêtres)

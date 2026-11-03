@@ -44,15 +44,15 @@ const FogProcessor::LearnDef& FogProcessor::learnDef (int i)
         { "dryfx",    "Dry FX",            -1, learnSelector,   4 },   // CC réparti sur les 4 positions
         { "q",        "Filter Q",          -1, learnSelector,   4 },
         { "presetKnob", "Preset knob",     -1, learnSelector,   8 },   // charge le preset 1-8 (comme tourner le bouton)
-        { "presetFs", "Preset footswitch", 80, learnFootswitch, 0 },   // CC 80 / 81 : numéros d'origine
+        { "presetFs", "Preset footswitch", 80, learnFootswitch, 0 },   // anciens CC d'usine 80 / 81 (projets anciens)
         { "bypass",   "Bypass footswitch", 81, learnFootswitch, 0 },
     };
     return defs[juce::jlimit (0, numLearn - 1, i)];
 }
 
-void FogProcessor::resetMidiMap()
+void FogProcessor::clearMidiMap()
 {
-    for (int i = 0; i < numLearn; ++i) ccMap[i].store (learnDef (i).defaultCC);
+    for (int i = 0; i < numLearn; ++i) ccMap[i].store (-1);
 }
 
 // ============================================================================
@@ -86,7 +86,7 @@ FogProcessor::FogProcessor()
         pendingValue[i] = 0.0f; pendingSet[i] = false;
         learnParam[i] = (i == learnKnob || i == learnPresetFs) ? nullptr : apvts.getParameter (learnDef (i).id);
     }
-    resetMidiMap();
+    clearMidiMap();
     startTimerHz (60);   // anti-gel v2 : aucun appel à l'hôte depuis le thread audio
 }
 
@@ -163,7 +163,7 @@ void FogProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuf
     if (n == 0) return;
     if (work.getNumSamples() < n) work.setSize (5, n, false, true, true);
 
-    // ---------------- MIDI: commandes apprises (MIDI Learn), footswitches CC 80 / 81, program change ----------------
+    // ---------------- MIDI: commandes apprises (MIDI Learn), program change ----------------
     for (const auto meta : midi)
     {
         const auto m = meta.getMessage();
@@ -538,14 +538,21 @@ void FogProcessor::setStateInformation (const void* data, int size)
     // projets d'avant la v1.5 : une taille différente de 67 % avait été choisie pour cette instance
     uiScaleSet = state.hasProperty ("uiScaleSet") ? (bool) state.getProperty ("uiScaleSet")
                                                   : std::abs (uiScale.load() - 0.67f) > 0.005f;
-    // assignations MIDI Learn (projet d'avant la v1.4 : footswitches ccPreset / ccBypass, le reste non assigné)
+    // assignations MIDI Learn : aucune par défaut (projet d'avant la v1.4 : footswitches ccPreset / ccBypass,
+    // le reste non assigné). Une table exactement égale à l'ancienne table d'usine (CC 80 / 81, le reste
+    // non assigné) n'a jamais été modifiée : elle est vidée.
+    int loadedCC[numLearn];
+    bool factory = true;
     for (int i = 0; i < numLearn; ++i)
     {
-        int def = learnDef (i).defaultCC;
+        int def = learnDef (i).legacyCC;
         if (i == learnPresetFs) def = (int) state.getProperty ("ccPreset", def);
         if (i == learnBypassFs) def = (int) state.getProperty ("ccBypass", def);
-        ccMap[i].store (juce::jlimit (-1, 127, (int) state.getProperty (juce::String ("cc_") + learnDef (i).id, def)));
+        loadedCC[i] = juce::jlimit (-1, 127, (int) state.getProperty (juce::String ("cc_") + learnDef (i).id, def));
+        if (loadedCC[i] != learnDef (i).legacyCC) factory = false;
     }
+    for (int i = 0; i < numLearn; ++i)
+        ccMap[i].store (factory ? -1 : loadedCC[i]);
     latchingPedals = (bool) state.getProperty ("latching", false);
     currentProgram = (int) state.getProperty ("program", 0);
     apvts.replaceState (state);

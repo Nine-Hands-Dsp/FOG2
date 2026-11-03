@@ -648,7 +648,7 @@ static void addLearnSection (juce::PopupMenu& m, FogProcessor& proc, int idx)
     const int cc = proc.ccMap[idx].load(), lt = proc.learnTarget.load();
     const String name = FogProcessor::learnDef (idx).name;
     m.addSectionHeader (name);
-    m.addItem (1000 + idx, "MIDI Learn: " + name + " (" + (cc >= 0 ? "CC " + String (cc) : String ("none")) + ")", true, lt == idx);
+    m.addItem (1000 + idx, "MIDI Learn: " + name + " (" + (cc >= 0 ? "CC " + String (cc) : String (CharPointer_UTF8 ("\xe2\x80\x94"))) + ")", true, lt == idx);
     m.addItem (1100 + idx, "Clear MIDI: " + name, cc >= 0);
     if (lt >= 0) m.addItem (1200, "Cancel MIDI learn");
     m.addSeparator();
@@ -660,7 +660,7 @@ static bool handleLearnResult (FogProcessor& proc, int r)
         proc.learnTarget = proc.learnTarget.load() == r - 1000 ? -1 : r - 1000;     // re-cliquer annule
     else if (r >= 1100 && r < 1100 + FogProcessor::numLearn) proc.ccMap[r - 1100].store (-1);
     else if (r == 1200) proc.learnTarget = -1;
-    else if (r == 1201) { proc.learnTarget = -1; proc.resetMidiMap(); }
+    else if (r == 1201) { proc.learnTarget = -1; proc.clearMidiMap(); }
     else return false;
     return true;
 }
@@ -697,13 +697,13 @@ static void showMainMenu (PedalContent& pc, juce::Component* from, int learnIdx)
     m.addItem (300, "Restore factory sounds in presets 1-8");
 
     PopupMenu midi; midi.setLookAndFeel (&menuLnF());
-    auto ccName = [] (int cc) { return cc < 0 ? String ("none") : "CC " + String (cc); };
+    auto ccName = [] (int cc) { return cc < 0 ? String (CharPointer_UTF8 ("\xe2\x80\x94")) : "CC " + String (cc); };
     for (int i = 0; i < FogProcessor::numLearn; ++i)
         midi.addItem (1000 + i, "Learn: " + String (FogProcessor::learnDef (i).name) + " (" + ccName (proc.ccMap[i].load()) + ")",
                       true, proc.learnTarget.load() == i);
     midi.addSeparator();
     if (proc.learnTarget.load() >= 0) midi.addItem (1200, "Cancel MIDI learn");
-    midi.addItem (1201, "Reset MIDI to defaults (footswitches CC 80 / 81)");
+    midi.addItem (1201, "Clear all MIDI assignments");
     midi.addItem (403, "Latching MIDI pedals (127 / 0 on each press)", true, proc.latchingPedals.load());
     midi.addSeparator();
     midi.addItem (404, "Program Change 1-8 loads presets 1-8", false, false);
