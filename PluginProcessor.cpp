@@ -452,7 +452,7 @@ bool FogProcessor::isModified() const
     return cur.dryFx != p.dryFx || cur.q != p.q;
 }
 
-// Anti-gel v2 (Studio Wiga) : jamais d'appel à l'hôte (setValueNotifyingHost, triggerAsyncUpdate) depuis le thread audio.
+// Anti-gel v2 (NINE HANDS | DSP) : jamais d'appel à l'hôte (setValueNotifyingHost, triggerAsyncUpdate) depuis le thread audio.
 // Le MIDI met ses demandes en file (pendingValue / pendingSet, compteurs) ; ce timer (60 Hz, thread de messages)
 // les transmet au DAW et à la fenêtre.
 void FogProcessor::queueParam (int i, float norm01)

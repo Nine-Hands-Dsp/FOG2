@@ -1,5 +1,5 @@
 // =============================================================================
-//  FOG2 (Studio Wiga) - polyphonic octave engine
+//  FOG2 (NINE HANDS | DSP) - polyphonic octave engine
 //
 //  How it works (same family of algorithms as the EHX POG / Sub'n'Up pedals):
 //   * the mono input is split by a bank of ~150 narrow complex band-pass filters

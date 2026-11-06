@@ -673,7 +673,7 @@ static void showMainMenu (PedalContent& pc, juce::Component* from, int learnIdx)
     PopupMenu m;
     m.setLookAndFeel (&menuLnF());
     if (learnIdx >= 0) addLearnSection (m, proc, learnIdx);
-    m.addSectionHeader ("Fog Z  -  Studio Wiga");
+    m.addSectionHeader ("Fog Z  -  NINE HANDS | DSP");
 
     // Plugin size : taille de cette fenêtre + taille par défaut des nouvelles fenêtres (comme Octopus)
     PopupMenu size; size.setLookAndFeel (&menuLnF());
@@ -774,7 +774,7 @@ FogEditor::~FogEditor() = default;
 // Avec certains pilotes (Intel notamment) la fenêtre du plugin cesse de se rafraîchir alors que
 // le DAW continue de tourner. Le moteur logiciel est stable partout et largement assez rapide ici.
 // =============================================================================
-// Anti-gel v2 (Studio Wiga) :
+// Anti-gel v2 (NINE HANDS | DSP) :
 //  1. moteur de rendu logiciel forcé sur Windows (Direct2D peut figer la fenêtre dans certains hôtes),
 //     appliqué à chaque nouvelle fenêtre hôte (peer) et revérifié toutes les secondes, jamais en boucle ;
 //  2. aucun calcul lourd dans paint() : le fond mis à l'échelle de l'écran est refait par le timer seulement,

@@ -1,4 +1,4 @@
-# Fog Z — Studio Wiga
+# Fog Z — NINE HANDS | DSP
 
 Plugin VST3 (Windows 64 bits + macOS universel Apple Silicon/Intel) qui copie la pédale **Electro-Harmonix POG2** (Polyphonic Octave Generator), sur le visuel « FOGZ ».
 
@@ -12,10 +12,10 @@ v1.3.0 : anti-gel v2 (JUCE 8.0.15, caches refaits par le timer, chien de garde, 
 3. Télécharge les artefacts :
    - `FogZ-VST3-Windows` → copie `Fog Z.vst3` dans `C:\Program Files\Common Files\VST3\`
    - `FogZ-VST3-macOS` → copie `Fog Z.vst3` dans `~/Library/Audio/Plug-Ins/VST3/` puis une fois : `xattr -cr ~/Library/Audio/Plug-Ins/VST3/"Fog Z.vst3"`
-4. Reaper : re-scanne. Le plugin s'appelle **Fog Z (Studio Wiga)**.
+4. Reaper : re-scanne. Le plugin s'appelle **Fog Z (NINE HANDS | DSP)**.
 
 ## Fenêtre
-Même taille que Ring Think : 665 × 498 par défaut (67 %), jamais plus petite. Clic droit → Plugin size : 60 / 75 / 100 / 125 % pour cette fenêtre, ou tirer le coin ; *Default size (new windows)* choisit la taille d'ouverture de toutes les nouvelles fenêtres de Fog Z (réglage enregistré dans `Studio Wiga/Fog Z/settings.xml` du dossier de données de l'utilisateur, comme Octopus). Une taille choisie pour une instance reste sauvegardée avec le projet et l'emporte.
+Même taille que Ring Think : 665 × 498 par défaut (67 %), jamais plus petite. Clic droit → Plugin size : 60 / 75 / 100 / 125 % pour cette fenêtre, ou tirer le coin ; *Default size (new windows)* choisit la taille d'ouverture de toutes les nouvelles fenêtres de Fog Z (réglage enregistré dans `NINE HANDS | DSP/Fog Z/settings.xml` du dossier de données de l'utilisateur, comme Octopus). Une taille choisie pour une instance reste sauvegardée avec le projet et l'emporte.
 
 ## Presets
 - Les **12 sons** apparaissent dans le menu déroulant des presets de la fenêtre du plugin (Reaper : liste en haut à gauche) et dans clic droit → Factory sounds.

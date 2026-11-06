@@ -1,4 +1,4 @@
-# FOG Z (Studio Wiga) - notice PDF bilingue (anglais puis francais), illustree.
+# FOG Z (NINE HANDS | DSP) - notice PDF bilingue (anglais puis francais), illustree.
 # Usage : python3 tools/manual.py <fichier PDF de sortie>
 #
 # Images sources dans tools/manual_assets/ (reprises de la notice v1.4.0, rendu reel du plugin) :
@@ -76,7 +76,7 @@ def build_menus():
     main_tail = [("Factory sounds", "sub"), ("Restore factory sounds in presets 1-8", ""), ("MIDI", "sub")]
     # 1) clic droit sur le fader DETUNE : Plugin size > Default size (new windows)
     m1, r1 = menu_img([("Detune", "head"), ("MIDI Learn: Detune (" + DASH + ")", ""), ("Clear MIDI: Detune", "dis"), ("", "sep"),
-                       ("Fog Z  -  Studio Wiga", "head"), ("Plugin size", "sub hi")] + main_tail, 640)
+                       ("Fog Z  -  NINE HANDS | DSP", "head"), ("Plugin size", "sub hi")] + main_tail, 640)
     m2, r2 = menu_img([("60 %  (default)", "chk"), ("75 %", ""), ("100 %", ""), ("125 %", ""), ("", "sep"),
                        ("Default size (new windows)", "sub hi")], 470)
     m3, _ = menu_img([("60 %", "chk"), ("75 %", ""), ("100 %", ""), ("125 %", "")], 220)
@@ -89,7 +89,7 @@ def build_menus():
     # 3) clic droit ailleurs : MIDI
     names = ["Dry Output", "-2 Octaves", "-1 Octave", "+1 Octave", "+2 Octaves", "Attack", "LP Filter", "Detune", "Dry FX",
              "Filter Q", "Preset knob", "Preset footswitch", "Bypass footswitch"]
-    g1, q1 = menu_img([("Fog Z  -  Studio Wiga", "head"), ("Plugin size", "sub")] + main_tail[:2] + [("MIDI", "sub hi")], 640)
+    g1, q1 = menu_img([("Fog Z  -  NINE HANDS | DSP", "head"), ("Plugin size", "sub")] + main_tail[:2] + [("MIDI", "sub hi")], 640)
     g2, _ = menu_img([("Learn: " + n + " (" + DASH + ")", "") for n in names] +
                      [("", "sep"), ("Clear all MIDI assignments", ""), ("Latching MIDI pedals (127 / 0 on each press)", ""), ("", "sep"),
                       ("Program Change 1-8 loads presets 1-8", "dis")], 760)
@@ -145,9 +145,9 @@ DFX = {"en": ["OFF", "RED", "GREEN", "AMBER"], "fr": ["ÉTEINTE", "ROUGE", "VERT
 T = {
 "en": dict(
  lang="ENGLISH", sub="Polyphonic Octave Generator &middot; VST3 &middot; Windows &amp; macOS", ver="User manual &middot; version " + VERSION,
- foot="Fog Z (Studio Wiga) &middot; User manual &middot; v" + VERSION,
+ foot="Fog Z (NINE HANDS | DSP) &middot; User manual &middot; v" + VERSION,
  pres_t="1. Presentation",
- pres=["<b>Fog Z</b> is a VST3 effect by Studio Wiga that recreates the <b>Electro-Harmonix POG2</b> (Polyphonic Octave Generator). From a single guitar it builds two octaves below and two octaves above every string of a chord, mixes them freely with your dry signal and lets you sculpt them with a swell, a resonant low-pass filter and a detune / rotary effect. Organs, cellos, 12-strings, synth basses, theremins&hellip; one fader movement away."],
+ pres=["<b>Fog Z</b> is a VST3 effect by NINE HANDS | DSP that recreates the <b>Electro-Harmonix POG2</b> (Polyphonic Octave Generator). From a single guitar it builds two octaves below and two octaves above every string of a chord, mixes them freely with your dry signal and lets you sculpt them with a swell, a resonant low-pass filter and a detune / rotary effect. Organs, cellos, 12-strings, synth basses, theremins&hellip; one fader movement away."],
  feat_t="Main features",
  feat=["<b>4 polyphonic voices</b>: -2, -1, +1 and +2 octaves, each with its own fader; chords track cleanly.",
        "<b>3 shaping effects</b>: Attack (note-by-note swell), LP Filter (2-pole, 4 resonances), Detune (chorus to rotary vibrato).",
@@ -160,7 +160,7 @@ T = {
  inst_t="2. Installation",
  inst=[("Windows 11", "Copy <b>Fog Z.vst3</b> into " + mono("C:\\Program Files\\Common Files\\VST3\\") + "."),
        ("macOS", "Copy <b>Fog Z.vst3</b> into " + mono("~/Library/Audio/Plug-Ins/VST3/") + ", then once, in Terminal: " + mono("xattr -cr ~/Library/Audio/Plug-Ins/VST3/\"Fog Z.vst3\"") + " (removes the download quarantine). Universal binary: Apple Silicon and Intel."),
-       ("Reaper", "Options &gt; Preferences &gt; Plug-ins &gt; VST &gt; <b>Re-scan</b>. Fog Z appears as <b>Fog Z (Studio Wiga)</b>."),
+       ("Reaper", "Options &gt; Preferences &gt; Plug-ins &gt; VST &gt; <b>Re-scan</b>. Fog Z appears as <b>Fog Z (NINE HANDS | DSP)</b>."),
        ("Build from GitHub", "Push all files to the root of the repository: the <i>Actions</i> tab produces <b>FogZ-VST3-Windows</b> and <b>FogZ-VST3-macOS</b>.")],
  ov_t="3. Interface overview",
  ov_i="All the controls of the real pedal are here, at the same place. Faders slide, buttons sink, the big knob clicks from preset to preset and the LEDs light up. Hover or move a fader to read its exact value.",
@@ -294,13 +294,13 @@ T = {
        ["Presets", "8 memories on the pedal &middot; 12 factory sounds &middot; saved with the project"],
        ["MIDI", "MIDI Learn on 13 controls (no CC assigned by default), latching option, Program Change 1-8, any channel"],
        ["Window", "Plugin size 60 % (minimum), 75 %, 100 %, 125 %; default size for new windows selectable; size chosen for an instance saved with the project; resizable by the corner"],
-       ["Stability", "Windows anti-freeze v2: the interface never blocks the host"], ["Name in the DAW", "Fog Z (Studio Wiga) &middot; version " + VERSION]],
- legal="Inspired by the Electro-Harmonix POG2. Electro-Harmonix and POG are trademarks of their owners; Fog Z is an independent tribute by Studio Wiga and is not affiliated with them. Built with JUCE."),
+       ["Stability", "Windows anti-freeze v2: the interface never blocks the host"], ["Name in the DAW", "Fog Z (NINE HANDS | DSP) &middot; version " + VERSION]],
+ legal="Inspired by the Electro-Harmonix POG2. Electro-Harmonix and POG are trademarks of their owners; Fog Z is an independent tribute by NINE HANDS | DSP and is not affiliated with them. Built with JUCE."),
 "fr": dict(
  lang="FRANÇAIS", sub="Générateur d'octaves polyphonique &middot; VST3 &middot; Windows &amp; macOS", ver="Notice d'utilisation &middot; version " + VERSION,
- foot="Fog Z (Studio Wiga) &middot; Notice d'utilisation &middot; v" + VERSION,
+ foot="Fog Z (NINE HANDS | DSP) &middot; Notice d'utilisation &middot; v" + VERSION,
  pres_t="1. Présentation",
- pres=["<b>Fog Z</b> est un effet VST3 Studio Wiga qui reproduit l'<b>Electro-Harmonix POG2</b> (Polyphonic Octave Generator). À partir d'une seule guitare, il crée deux octaves en dessous et deux octaves au-dessus de chaque corde d'un accord, les mélange librement avec ton son direct et te laisse les sculpter avec une montée de volume, un filtre passe-bas résonant et un detune / effet rotatif. Orgues, violoncelles, 12 cordes, basses synthé, thérémines&hellip; à un mouvement de fader."],
+ pres=["<b>Fog Z</b> est un effet VST3 NINE HANDS | DSP qui reproduit l'<b>Electro-Harmonix POG2</b> (Polyphonic Octave Generator). À partir d'une seule guitare, il crée deux octaves en dessous et deux octaves au-dessus de chaque corde d'un accord, les mélange librement avec ton son direct et te laisse les sculpter avec une montée de volume, un filtre passe-bas résonant et un detune / effet rotatif. Orgues, violoncelles, 12 cordes, basses synthé, thérémines&hellip; à un mouvement de fader."],
  feat_t="Points forts",
  feat=["<b>4 voix polyphoniques</b> : -2, -1, +1 et +2 octaves, chacune avec son fader ; les accords sont suivis proprement.",
        "<b>3 effets</b> : Attack (montée note par note), LP Filter (2 pôles, 4 résonances), Detune (du chorus au vibrato rotatif).",
@@ -313,7 +313,7 @@ T = {
  inst_t="2. Installation",
  inst=[("Windows 11", "Copie <b>Fog Z.vst3</b> dans " + mono("C:\\Program Files\\Common Files\\VST3\\") + "."),
        ("macOS", "Copie <b>Fog Z.vst3</b> dans " + mono("~/Library/Audio/Plug-Ins/VST3/") + ", puis une seule fois, dans le Terminal : " + mono("xattr -cr ~/Library/Audio/Plug-Ins/VST3/\"Fog Z.vst3\"") + " (retire la quarantaine du téléchargement). Binaire universel : Apple Silicon et Intel."),
-       ("Reaper", "Options &gt; Preferences &gt; Plug-ins &gt; VST &gt; <b>Re-scan</b>. Fog Z apparaît sous le nom <b>Fog Z (Studio Wiga)</b>."),
+       ("Reaper", "Options &gt; Preferences &gt; Plug-ins &gt; VST &gt; <b>Re-scan</b>. Fog Z apparaît sous le nom <b>Fog Z (NINE HANDS | DSP)</b>."),
        ("Compilation GitHub", "Pousse tous les fichiers à la racine du dépôt : l'onglet <i>Actions</i> produit <b>FogZ-VST3-Windows</b> et <b>FogZ-VST3-macOS</b>.")],
  ov_t="3. Vue d'ensemble de l'interface",
  ov_i="Toutes les commandes de la vraie pédale sont là, au même endroit. Les faders glissent, les boutons s'enfoncent, le gros bouton passe d'un cran à l'autre et les LED s'allument. Survole ou bouge un fader pour lire sa valeur exacte.",
@@ -447,8 +447,8 @@ T = {
        ["Presets", "8 mémoires sur la pédale &middot; 12 sons d'usine &middot; enregistrés avec le projet"],
        ["MIDI", "MIDI Learn sur 13 commandes (aucun CC assigné d'office), option à accrochage, Program Change 1-8, tous canaux"],
        ["Fenêtre", "Plugin size 60 % (minimum), 75 %, 100 %, 125 % ; taille d'ouverture des nouvelles fenêtres au choix ; taille choisie pour une instance enregistrée avec le projet ; redimensionnable par le coin"],
-       ["Stabilité", "Anti-gel v2 de la fenêtre sous Windows : l'interface ne bloque jamais l'hôte"], ["Nom dans le DAW", "Fog Z (Studio Wiga) &middot; version " + VERSION]],
- legal="Inspiré de l'Electro-Harmonix POG2. Electro-Harmonix et POG sont des marques de leurs propriétaires ; Fog Z est un hommage indépendant de Studio Wiga, sans lien avec eux. Construit avec JUCE."),
+       ["Stabilité", "Anti-gel v2 de la fenêtre sous Windows : l'interface ne bloque jamais l'hôte"], ["Nom dans le DAW", "Fog Z (NINE HANDS | DSP) &middot; version " + VERSION]],
+ legal="Inspiré de l'Electro-Harmonix POG2. Electro-Harmonix et POG sont des marques de leurs propriétaires ; Fog Z est un hommage indépendant de NINE HANDS | DSP, sans lien avec eux. Construit avec JUCE."),
 }
 
 W = A4[0] - 36 * mm
@@ -551,7 +551,7 @@ def cover_bg(c, doc):
     c.setFillColor(ACC); c.rect(0, A4[1] - 3 * mm, A4[0], 3 * mm, stroke=0, fill=1); c.restoreState()
 
 doc = BaseDocTemplate(OUT, pagesize=A4, leftMargin=18 * mm, rightMargin=18 * mm, topMargin=16 * mm, bottomMargin=18 * mm,
-                      title="Fog Z - User manual / Notice v" + VERSION, author="Studio Wiga")
+                      title="Fog Z - User manual / Notice v" + VERSION, author="NINE HANDS | DSP")
 doc.addPageTemplates([PageTemplate(id="cover", frames=[Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="fc")], onPage=cover_bg),
                       PageTemplate(id="p", frames=[Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="f")], onPage=deco)])
 en = section("en"); fr = section("fr")

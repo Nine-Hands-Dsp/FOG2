@@ -25,7 +25,7 @@ juce_add_binary_data(FogZAssets SOURCES
   fs_preset_up.png fs_bypass_up.png)
 
 juce_add_plugin(FogZ
-  COMPANY_NAME "Studio Wiga"
+  COMPANY_NAME "NINE HANDS | DSP"
   PLUGIN_MANUFACTURER_CODE Wiga
   PLUGIN_CODE WgF2
   FORMATS VST3
