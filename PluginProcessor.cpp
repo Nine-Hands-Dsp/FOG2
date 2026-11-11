@@ -403,6 +403,7 @@ void FogProcessor::loadPreset (int idx)
     if (! p.valid) { loaded = -1; return; }
     applyToParams (*this, p, [this] (const char* id, float v) { setParam (id, v); });
     loaded = idx;
+    lastFactory = -1;
 }
 
 void FogProcessor::savePreset (int idx)
@@ -434,6 +435,29 @@ void FogProcessor::applyFactory (int fi)
     if (fi < 0 || fi >= (int) list.size()) return;
     applyToParams (*this, list[(size_t) fi].p, [this] (const char* id, float v) { setParam (id, v); });
     loaded = -1;
+    lastFactory = fi;
+}
+
+static bool samePreset (const FogPreset& a, const FogPreset& b)
+{
+    for (int i = 0; i < 8; ++i) if (std::abs (a.v[(size_t) i] - b.v[(size_t) i]) > 0.006f) return false;
+    return a.dryFx == b.dryFx && a.q == b.q;
+}
+
+juce::String FogProcessor::presetLine() const
+{
+    const auto& list = getFactoryPresets();
+    const int l = loaded.load();
+    if (l >= 0)
+    {
+        const auto& s = slots[(size_t) l];
+        const juce::String name = samePreset (s, list[(size_t) l].p) ? juce::String (list[(size_t) l].name) : juce::String ("User");
+        return juce::String (l + 1) + ". " + name + (isModified() ? "  (edited)" : "");
+    }
+    const int f = lastFactory.load();
+    if (f >= 0 && f < (int) list.size())
+        return juce::String (list[(size_t) f].name) + (samePreset (captureCurrent(), list[(size_t) f].p) ? "" : "  (edited)");
+    return "Edited";
 }
 
 void FogProcessor::restoreFactorySlots()
@@ -501,6 +525,7 @@ void FogProcessor::getStateInformation (juce::MemoryBlock& dest)
     state.setProperty ("loaded", loaded.load(), nullptr);
     state.setProperty ("uiScale2", uiScale.load(), nullptr);
     state.setProperty ("uiScaleSet", uiScaleSet.load(), nullptr);
+    state.setProperty ("uiHeight3", uiHeight.load(), nullptr);
     state.setProperty ("ccPreset", ccMap[learnPresetFs].load(), nullptr);    // anciennes versions
     state.setProperty ("ccBypass", ccMap[learnBypassFs].load(), nullptr);
     for (int i = 0; i < numLearn; ++i)
@@ -555,6 +580,7 @@ void FogProcessor::setStateInformation (const void* data, int size)
         ccMap[i].store (factory ? -1 : loadedCC[i]);
     latchingPedals = (bool) state.getProperty ("latching", false);
     currentProgram = (int) state.getProperty ("program", 0);
+    uiHeight = (int) state.getProperty ("uiHeight3", 0);      // v2 : les tailles v1 (autre repere) ne sont pas reprises
     apvts.replaceState (state);
 }
 

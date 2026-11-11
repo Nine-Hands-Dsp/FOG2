@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.22)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "")
 
-project(FogZ VERSION 1.5.1)
+project(FogZ VERSION 2.0.0)
 
 # Local builds can point to an existing JUCE checkout:  cmake -B build -DJUCE_DIR=/path/to/JUCE
 if(DEFINED JUCE_DIR)
@@ -20,9 +20,12 @@ endif()
 
 # every picture is embedded in the plugin (nothing to install next to it)
 juce_add_binary_data(FogZAssets SOURCES
-  background.png
-  fader_cap.png button_up.png
-  fs_preset_up.png fs_bypass_up.png)
+  background.png silk.svg NineHandsLogoWhite.svg
+  fader_cap.png button_down.png
+  lens_red.png lens_amber.png lens_green.png halo_red.png halo_amber.png halo_green.png
+  dome_amber.png halo_dome.png
+  knob_shadow.png knob_crown.png knob_cap.png knob_marker.png knob_highlight.png
+  Poppins-Regular.ttf Poppins-Medium.ttf Poppins-Bold.ttf)
 
 juce_add_plugin(FogZ
   COMPANY_NAME "NINE HANDS | DSP"

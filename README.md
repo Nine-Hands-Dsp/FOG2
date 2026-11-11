@@ -1,10 +1,8 @@
 # Fog Z — NINE HANDS | DSP
 
-Plugin VST3 (Windows 64 bits + macOS universel Apple Silicon/Intel) qui copie la pédale **Electro-Harmonix POG2** (Polyphonic Octave Generator), sur le visuel « FOGZ ».
+Plugin VST3 (Windows 64 bits + macOS universel Apple Silicon/Intel) : générateur d'octaves polyphonique inspiré de la pédale **Electro-Harmonix POG2**, sur le visuel « FOGZ ».
 
-v1.5.0 : clic droit > Plugin size > Default size (new windows) : taille par défaut des nouvelles fenêtres au choix, comme dans Octopus
-v1.4.0 : MIDI Learn au clic droit sur chaque commande (Clear MIDI, assignations sauvegardées avec le projet)
-v1.3.0 : anti-gel v2 (JUCE 8.0.15, caches refaits par le timer, chien de garde, aucun appel à l'hôte depuis le thread audio)
+v2.0.0 : pédale refaite en haute résolution (2266 × 1800, sérigraphie et logo vectoriels, pièces photo, gros bouton PRESET animé en calques, LED avec réglage Glow, barre de presets / ligne d'état, menus façon Octopus)
 
 <p align="center">
   <a href="https://github.com/Nine-Hands-Dsp/FOG2/releases/latest/download/FogZ-VST3-Windows.zip"><img alt="Télécharger pour Windows" src="https://img.shields.io/badge/%E2%AC%87%20T%C3%A9l%C3%A9charger-Windows-0078D6?style=for-the-badge"></a>
@@ -24,7 +22,7 @@ v1.3.0 : anti-gel v2 (JUCE 8.0.15, caches refaits par le timer, chien de garde, 
 4. Reaper : re-scanne. Le plugin s'appelle **Fog Z (NINE HANDS | DSP)**.
 
 ## Fenêtre
-Même taille que Ring Think : 665 × 498 par défaut (67 %), jamais plus petite. Clic droit → Plugin size : 60 / 75 / 100 / 125 % pour cette fenêtre, ou tirer le coin ; *Default size (new windows)* choisit la taille d'ouverture de toutes les nouvelles fenêtres de Fog Z (réglage enregistré dans `NINE HANDS | DSP/Fog Z/settings.xml` du dossier de données de l'utilisateur, comme Octopus). Une taille choisie pour une instance reste sauvegardée avec le projet et l'emporte.
+Hauteur de Ring Think : « 60 % » par défaut, jamais plus petite. Clic droit → Plugin size : 60 / 75 / 100 % pour cette fenêtre, ou tirer le coin ; clic droit → Glow : halo des LED 25 / 50 / 75 / 100 % ; *Default size (new windows)* choisit la taille d'ouverture de toutes les nouvelles fenêtres de Fog Z (réglage enregistré dans `Nine Hands DSP/Fog Z/settings.xml` du dossier de données de l'utilisateur, comme Octopus). Une taille choisie pour une instance reste sauvegardée avec le projet et l'emporte.
 
 ## Presets
 - Les **12 sons** apparaissent dans le menu déroulant des presets de la fenêtre du plugin (Reaper : liste en haut à gauche) et dans clic droit → Factory sounds.
@@ -42,6 +40,7 @@ Même taille que Ring Think : 665 × 498 par défaut (67 %), jamais plus petite.
 | DETUNE | voix +1 et +2 : chorus lent en bas, chorus rapide puis vibrato (rotatif) en haut — vitesse ET profondeur montent ensemble |
 | DRY FX | LED éteinte : direct propre · rouge : → Attack · vert : → Attack + LP · ambre : → Attack + LP + Detune |
 | Q | 4 résonances (LED de plus en plus lumineuse) |
+| barre de presets | ◀ ▶ preset précédent / suivant, clic sur le nom = menu des presets ; pendant un réglage elle affiche la valeur en direct |
 | gros bouton blanc | sélecteur à 8 crans : tourner (glisser vers le haut / la droite ou molette) **charge aussitôt** le preset, butées en 1 et 8 · clic = recharger · maintenir 3 s = sauvegarder |
 | footswitch PRESET | charge le preset choisi ; déjà chargé → suivant ; modifié → le recharge |
 | LED PRESET | fixe = chargé · clignote = modifié |
@@ -52,5 +51,3 @@ Double-clic sur un fader = valeur par défaut. MIDI (clic droit) : aucun CC assi
 ## Moteur
 ~190 filtres passe-bande complexes à 3 étages (≈ 3 par demi-ton au-dessus de 360 Hz) ; dans chaque bande la phase est multipliée (+1 / +2) ou divisée (-1 / -2) ; seules les bandes qui sont un pic du spectre parlent → chaque corde d'un accord garde sa propre octave. Les bandes sous 1 kHz tournent à ~12 kHz pour économiser le processeur. Limiteur doux en sortie, filtre anti-grondement 16 Hz sur les octaves basses. Porte de bruit par bande (le souffle et le ronflement ne déclenchent plus de notes) et suiveur d’arrêt : quand la guitare s’arrête net, les octaves se coupent aussitôt au lieu de sonner ~80 ms en « bip ». Porte de repos : guitare branchée mais pas jouée (ronflement, buzz, souffle), les octaves restent muettes ; elles ne s’ouvrent qu’à +12 dB au-dessus du bruit de fond appris en continu.
 
-- v1.3.1 : menu de taille de fenêtre : « 60 % (default) », 75 %, 100 % (plus de taille en pixels)
-- v1.5.1 : plus aucun CC MIDI assigné par défaut (tout passe par le MIDI Learn)
