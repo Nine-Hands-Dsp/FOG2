@@ -88,6 +88,7 @@ public:
     std::atomic<bool> latchingPedals { false };    // pedal sends 127 / 0 on alternate presses
     std::atomic<float> uiScale { 0.67f };          // window scale (0.67 = default, never smaller)
     std::atomic<bool>  uiScaleSet { false };       // ancien format (v1) : lu pour compatibilité, plus utilisé
+    std::atomic<int>   uiSizeIdx { -1 };          // v2.1 : taille choisie au menu pour ce projet (0..2), -1 = taille par defaut
     std::atomic<int>   uiHeight { 0 };             // v2 : hauteur de fenêtre choisie pour cette instance (0 = taille par défaut)
 
     juce::AudioProcessorValueTreeState apvts;

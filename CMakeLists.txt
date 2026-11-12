@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.22)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "")
 
-project(FogZ VERSION 2.0.0)
+project(FogZ VERSION 2.1.0)
 
 # Local builds can point to an existing JUCE checkout:  cmake -B build -DJUCE_DIR=/path/to/JUCE
 if(DEFINED JUCE_DIR)
@@ -42,6 +42,17 @@ juce_add_plugin(FogZ
 
 target_sources(FogZ PRIVATE PluginProcessor.cpp PluginEditor.cpp)
 
+
+# verrou de taille de la fenetre du DAW (jamais sous 60 %, jamais au-dela de 150 %)
+if(APPLE)
+  target_sources(FogZ PRIVATE WindowMinSize.mm)
+  target_link_libraries(FogZ PRIVATE "-framework Cocoa")
+else()
+  target_sources(FogZ PRIVATE WindowMinSize.cpp)
+endif()
+if(WIN32)
+  target_link_libraries(FogZ PRIVATE comctl32 user32)
+endif()
 # the octave engine is ~150 band filters per sample: let the compiler vectorise it
 if(MSVC)
   set_source_files_properties(PluginProcessor.cpp PROPERTIES COMPILE_OPTIONS "/fp:fast")

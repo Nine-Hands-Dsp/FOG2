@@ -76,12 +76,11 @@ FogEditor::FogEditor (FogProcessor& p) : AudioProcessorEditor (p), proc (p)
     // taille : 495 px de haut par defaut (« 60 % ») = taille minimale, proportions bloquees ;
     // ouverture a la taille enregistree pour cette instance, sinon a la taille par defaut choisie dans le menu
     const double aspect = (double) baseW / (double) baseH;
-    const int saved = proc.uiHeight.load();
-    const int h0 = saved > 0 ? jlimit (heightDefault, heightMax, saved)
-                             : sizeHeight (WigaWindowSize::defaultIndex (JucePlugin_Name, numSizes));
+    const int h0 = sizeHeight (NineHandsWindow::openIndex (JucePlugin_Name, proc.uiSizeIdx.load(), numSizes));
     setResizable (true, true);
     setResizeLimits (roundToInt (heightDefault * aspect), heightDefault, roundToInt (heightMax * aspect), heightMax);
     getConstrainer()->setFixedAspectRatio (aspect);
+    hostLock.setLimits (roundToInt (heightDefault * aspect), heightDefault, roundToInt (heightMax * aspect), heightMax);
     setOpaque (true);
     openHeight = h0;
     setSize (roundToInt (h0 * aspect), h0);
@@ -113,7 +112,7 @@ void FogEditor::useSoftwareRenderer()
    #endif
 }
 
-void FogEditor::parentHierarchyChanged() { useSoftwareRenderer(); }
+void FogEditor::parentHierarchyChanged() { useSoftwareRenderer(); hostLock.track (*this); }
 void FogEditor::visibilityChanged()      { useSoftwareRenderer(); if (isShowing()) repaint(); }
 
 float FogEditor::physicalScale() const
@@ -131,8 +130,6 @@ void FogEditor::askRepaint (Rectangle<float> u)
 void FogEditor::resized()
 {
     // jamais de setSize ici ; taille de l'instance enregistree seulement si elle a ete changee
-    if (proc.uiHeight.load() > 0 || (openHeight > 0 && std::abs (getHeight() - openHeight) > 2))
-        proc.uiHeight.store (jlimit (heightDefault, heightMax, getHeight()));
     resizeSettle = 4;
 }
 
@@ -146,6 +143,7 @@ void FogEditor::setWindowHeight (int h)
 {
     h = jlimit (heightDefault, heightMax, h);
     setSize (roundToInt ((double) h * baseW / baseH), h);
+    hostLock.enforce();
 }
 
 void FogEditor::setGlowPercent (int pc)
@@ -315,6 +313,7 @@ void FogEditor::timerCallback()
     const double now = Time::getMillisecondCounterHiRes();
     const auto nowMs = Time::getMillisecondCounter();
     if (getPeer() != lastPeer || now - lastRendererCheckMs > 1000.0) { lastRendererCheckMs = now; useSoftwareRenderer(); }
+    hostLock.track (*this);
     if (resizeSettle > 0 && --resizeSettle == 0) rebuildCaches (physicalScale());
     else if (resizeSettle == 0 && now - lastScaleCheckMs > 250.0)
     {
@@ -753,7 +752,7 @@ void FogEditor::showPresetMenu()
 //==============================================================================
 // Menu clic droit (design d'Octopus, NineHandsMenu.h), toujours ouvert a l'endroit du clic
 //==============================================================================
-void FogEditor::showContextMenu (int learnIdx)
+PopupMenu FogEditor::buildContextMenu (int learnIdx)
 {
     using namespace NineHandsMenu;
     PopupMenu menu;
@@ -762,48 +761,31 @@ void FogEditor::showContextMenu (int learnIdx)
     const int lt = proc.learnTarget.load();
     if (learnIdx >= 0)
     {
+        // menu d'une commande (tronc commun) : en-tete, MIDI Learn, Clear MIDI, Cancel MIDI learn
         const String name = FogProcessor::learnDef (learnIdx).name;
         const int ico = learnIdx < 8 ? icoKnob : (learnIdx == FogProcessor::learnPresetFs || learnIdx == FogProcessor::learnBypassFs) ? icoPedal
                       : learnIdx == FogProcessor::learnKnob ? icoPreset : icoSwitch;
         addHeader (menu, menuLnf.f, ico, menuAccent, name, "MIDI: " + ccText (learnIdx));
         menu.addItem (1000 + learnIdx, "MIDI Learn: " + name, true, lt == learnIdx);
         menu.addItem (1100 + learnIdx, "Clear MIDI: " + name, proc.ccMap[learnIdx].load() >= 0);
-        if (lt >= 0) menu.addItem (1200, "Cancel MIDI learn");
-        menu.addSeparator();
+        menu.addItem (1200, "Cancel MIDI learn", lt >= 0);
+        return menu;
     }
-    else
-        addHeader (menu, menuLnf.f, icoPedal, menuAccent, "Fog Z", "Polyphonic octaves  v" + String (JucePlugin_VersionString));
 
-    PopupMenu sizes, defSizes;
-    {
-        const char* names[numSizes] = { "60 %", "75 %", "100 %" };
-        const int def = WigaWindowSize::defaultIndex (JucePlugin_Name, numSizes);
-        for (int i = 0; i < numSizes; ++i)
-        {
-            sizes.addItem (1 + i, String (names[i]) + (i == def ? "  (default)" : ""), true, std::abs (getHeight() - sizeHeight (i)) <= 2);
-            defSizes.addItem (20 + i, names[i], true, i == def);
-        }
-        sizes.addSeparator();
-        sizes.addSubMenu ("Default size (new windows)", defSizes);
-    }
-    menu.addSubMenu ("Plugin size", sizes);
-    PopupMenu glowM;                   // reglage du halo des lumieres (regle des skills, nov. 2026)
-    {
-        const int now = roundToInt (glow * 100.0f);
-        for (int i = 0; i < NineHandsGlow::numSteps; ++i)
-        {
-            const int pc = NineHandsGlow::steps[i];
-            glowM.addItem (60 + i, "Glow " + String (pc) + " %" + (pc == 100 ? "  (default)" : ""), true, now == pc);
-        }
-    }
-    menu.addSubMenu ("Glow (halo of the lights)", glowM);
-    menu.addSeparator();
-
+    addHeader (menu, menuLnf.f, icoPedal, menuAccent, "Fog Z", "Polyphonic octaves  v" + String (JucePlugin_VersionString));
     const auto& list = getFactoryPresets();
-    PopupMenu fac;
+    PopupMenu fac, load, save;
     for (int i = 0; i < (int) list.size(); ++i) fac.addItem (200 + i, String (i + 1) + ". " + list[(size_t) i].name, true, proc.lastFactory.load() == i);
-    menu.addSubMenu ("Factory sounds", fac);
-    menu.addItem (300, "Restore factory sounds in presets 1-8");
+    fac.addSeparator();
+    fac.addItem (300, "Restore factory sounds in presets 1-8");
+    menu.addSubMenu ("Factory presets", fac);
+    for (int i = 0; i < 8; ++i)
+    {
+        load.addItem (400 + i, "Preset " + String (i + 1), true, proc.getLoaded() == i);
+        save.addItem (100 + i, "Preset " + String (i + 1) + "  (overwrite)");
+    }
+    menu.addSubMenu ("Load user preset", load);
+    menu.addSubMenu ("Save user preset", save);
     menu.addSeparator();
 
     PopupMenu midi;
@@ -811,35 +793,41 @@ void FogEditor::showContextMenu (int learnIdx)
     for (int i = 0; i < FogProcessor::numLearn; ++i)
         midi.addItem (1000 + i, "Learn: " + String (FogProcessor::learnDef (i).name) + "  (" + ccText (i) + ")", true, lt == i);
     midi.addSeparator();
-    if (lt >= 0) midi.addItem (1200, "Cancel MIDI learn");
+    midi.addItem (1200, "Cancel MIDI learn", lt >= 0);
     midi.addItem (1201, "Clear all MIDI assignments");
     midi.addSeparator();
-    midi.addItem (403, "Latching MIDI pedals (127 / 0 on each press)", true, proc.latchingPedals.load());
-    midi.addItem (404, "Program Change 1-8 loads presets 1-8", false);
+    NineHandsWindow::addMidiFootswitchMode (midi, proc.latchingPedals.load());
+    midi.addSeparator();
+    NineHandsWindow::addProgramChangeInfo (midi);
     menu.addSubMenu ("MIDI", midi);
     menu.addSeparator();
-    menu.addItem (999, "Fog Z v" + String (JucePlugin_VersionString) + "  NINE HANDS | DSP", false);
 
+    const char* names[numSizes] = { "60 %", "75 %", "100 %" };
+    const int heights[numSizes] = { sizeHeight (0), sizeHeight (1), sizeHeight (2) };
+    menu.addSubMenu ("Plugin size", NineHandsWindow::sizeMenu (JucePlugin_Name, numSizes, names, heights, getHeight()));
+    menu.addSubMenu ("Glow intensity", NineHandsWindow::glowMenu (roundToInt (glow * 100.0f)));
+    return menu;
+}
+
+void FogEditor::showContextMenu (int learnIdx)
+{
+    auto menu = buildContextMenu (learnIdx);
     menu.showMenuAsync (PopupMenu::Options().withMousePosition(),       // toujours la ou l'on clique
         [safe = Component::SafePointer<FogEditor> (this)] (int r)
         {
             if (safe == nullptr || r == 0) return;
             auto& ed = *safe;
             auto& pr = ed.proc;
-            if      (r >= 1 && r < 1 + numSizes) ed.setWindowHeight (sizeHeight (r - 1));
-            else if (r >= 20 && r < 20 + numSizes)
-            {
-                WigaWindowSize::setDefaultIndex (JucePlugin_Name, r - 20);   // toutes les nouvelles fenetres de ce plugin
-                ed.setWindowHeight (sizeHeight (r - 20));
-            }
-            else if (r >= 60 && r < 60 + NineHandsGlow::numSteps)
-            {
-                ed.setGlowPercent (NineHandsGlow::steps[r - 60]);
-                ed.flash ("Glow  " + String (NineHandsGlow::steps[r - 60]) + " %");
-            }
-            else if (r >= 200 && r < 300) pr.applyFactory (r - 200);
+            int inst = pr.uiSizeIdx.load();
+            const int sz = NineHandsWindow::handleSize (r, JucePlugin_Name, numSizes, inst);
+            if (sz >= 0) { pr.uiSizeIdx = inst; ed.setWindowHeight (sizeHeight (sz)); return; }
+            if (const int pc = NineHandsWindow::handleGlow (r, JucePlugin_Name)) { ed.setGlowPercent (pc); ed.flash ("Glow  " + String (pc) + " %"); return; }
+            if (r >= 200 && r < 300) pr.applyFactory (r - 200);
             else if (r == 300) { pr.restoreFactorySlots(); ed.flash ("Factory sounds restored in presets 1-8"); }
-            else if (r == 403) pr.latchingPedals = ! pr.latchingPedals.load();
+            else if (r >= 400 && r < 408) pr.loadPreset (r - 400);
+            else if (r >= 100 && r < 108) { pr.savePreset (r - 100); ed.flash ("Saved to preset " + String (r - 99)); }
+            else if (r == NineHandsWindow::idLatch)     pr.latchingPedals = true;
+            else if (r == NineHandsWindow::idMomentary) pr.latchingPedals = false;
             else if (r >= 1000 && r < 1000 + FogProcessor::numLearn)
             {
                 const int t = r - 1000;

@@ -4,6 +4,7 @@
 #include "PluginProcessor.h"
 #include "Layout.h"
 #include "NineHandsMenu.h"
+#include "NineHandsWindow.h"
 
 //==============================================================================
 // FOG Z v2 (NINE HANDS | DSP) : pedale double, fond 2266 x 1800 px plein cadre (repere 1133 x 900, Layout.h).
@@ -67,6 +68,9 @@ private:
     void cycleParam (const char* id, const juce::String& label, const juce::StringArray& names);
     juce::String faderText (int i, float v) const;
 
+public:
+    juce::PopupMenu buildContextMenu (int learnIdx = -1);   // menu clic droit (aussi pour l'outil de controle des menus)
+private:
     void showContextMenu (int learnIdx = -1);
     void showPresetMenu();
     void stepPreset (int delta);
@@ -77,6 +81,7 @@ private:
 
     FogProcessor& proc;
     NineHandsMenu::MenuLnf menuLnf;
+    NineHandsWindow::HostLock hostLock;    // fenetre du DAW : jamais sous 60 %, jamais au-dela de 150 %
     juce::Typeface::Ptr regularFace, mediumFace, boldFace;
     std::unique_ptr<juce::Drawable> silk, logo;
     juce::Path textPath;                               // textes de la serigraphie (unites)

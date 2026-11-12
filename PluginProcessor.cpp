@@ -526,6 +526,7 @@ void FogProcessor::getStateInformation (juce::MemoryBlock& dest)
     state.setProperty ("uiScale2", uiScale.load(), nullptr);
     state.setProperty ("uiScaleSet", uiScaleSet.load(), nullptr);
     state.setProperty ("uiHeight3", uiHeight.load(), nullptr);
+    state.setProperty ("uiSize", uiSizeIdx.load(), nullptr);
     state.setProperty ("ccPreset", ccMap[learnPresetFs].load(), nullptr);    // anciennes versions
     state.setProperty ("ccBypass", ccMap[learnBypassFs].load(), nullptr);
     for (int i = 0; i < numLearn; ++i)
@@ -581,6 +582,13 @@ void FogProcessor::setStateInformation (const void* data, int size)
     latchingPedals = (bool) state.getProperty ("latching", false);
     currentProgram = (int) state.getProperty ("program", 0);
     uiHeight = (int) state.getProperty ("uiHeight3", 0);      // v2 : les tailles v1 (autre repere) ne sont pas reprises
+    {
+        // v2.1 : taille du menu ; projet v2 : sa hauteur si c'est une des trois tailles du menu (495 / 557 / 743)
+        int idx = -1;
+        const int hs[3] = { 495, 557, 743 };
+        for (int i = 0; i < 3; ++i) if (uiHeight.load() > 0 && std::abs (uiHeight.load() - hs[i]) <= 2) idx = i;
+        uiSizeIdx = juce::jlimit (-1, 2, (int) state.getProperty ("uiSize", idx));
+    }
     apvts.replaceState (state);
 }
 
