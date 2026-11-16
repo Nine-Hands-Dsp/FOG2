@@ -44,8 +44,8 @@ const FogProcessor::LearnDef& FogProcessor::learnDef (int i)
         { "dryfx",    "Dry FX",            -1, learnSelector,   4 },   // CC réparti sur les 4 positions
         { "q",        "Filter Q",          -1, learnSelector,   4 },
         { "presetKnob", "Preset knob",     -1, learnSelector,   8 },   // charge le preset 1-8 (comme tourner le bouton)
-        { "presetFs", "Preset footswitch", 80, learnFootswitch, 0 },   // anciens CC d'usine 80 / 81 (projets anciens)
-        { "bypass",   "Bypass footswitch", 81, learnFootswitch, 0 },
+        { "presetFs", "Preset", 80, learnFootswitch, 0 },   // anciens CC d'usine 80 / 81 (projets anciens)
+        { "bypass",   "Bypass", 81, learnFootswitch, 0 },
     };
     return defs[juce::jlimit (0, numLearn - 1, i)];
 }
@@ -211,10 +211,6 @@ void FogProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuf
                     queueParam (i, cur > 0.5f ? 0.0f : 1.0f);
                 }
             }
-        }
-        else if (m.isProgramChange() && m.getProgramChangeNumber() < 8)
-        {
-            pendingProgram = m.getProgramChangeNumber();
         }
     }
 

@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include "NineHandsUserPresets.h"
 #include "BinaryData.h"
 #include "WigaWindowSize.h"
 #include "NineHandsGlow.h"
@@ -774,31 +775,21 @@ PopupMenu FogEditor::buildContextMenu (int learnIdx)
 
     addHeader (menu, menuLnf.f, icoPedal, menuAccent, "Fog Z", "Polyphonic octaves  v" + String (JucePlugin_VersionString));
     const auto& list = getFactoryPresets();
-    PopupMenu fac, load, save;
-    for (int i = 0; i < (int) list.size(); ++i) fac.addItem (200 + i, String (i + 1) + ". " + list[(size_t) i].name, true, proc.lastFactory.load() == i);
-    fac.addSeparator();
-    fac.addItem (300, "Restore factory sounds in presets 1-8");
+    PopupMenu fac;
+    for (int i = 0; i < (int) list.size(); ++i) NineHandsMenu::addItem (fac, 200 + i, String (i + 1) + ". " + list[(size_t) i].name, icoDot, true, proc.lastFactory.load() == i);
     menu.addSubMenu ("Factory presets", fac);
-    for (int i = 0; i < 8; ++i)
-    {
-        load.addItem (400 + i, "Preset " + String (i + 1), true, proc.getLoaded() == i);
-        save.addItem (100 + i, "Preset " + String (i + 1) + "  (overwrite)");
-    }
-    menu.addSubMenu ("Load user preset", load);
-    menu.addSubMenu ("Save user preset", save);
+    NineHandsUserPresets::addMenus (menu, JucePlugin_Name, 500, 600, -1);      // presets utilisateur User 1-9 (fichier commun)
     menu.addSeparator();
 
     PopupMenu midi;
     midi.addSectionHeader ("MIDI Learn");
     for (int i = 0; i < FogProcessor::numLearn; ++i)
-        midi.addItem (1000 + i, "Learn: " + String (FogProcessor::learnDef (i).name) + "  (" + ccText (i) + ")", true, lt == i);
+        NineHandsMenu::addItem (midi, 1000 + i, "Learn: " + String (FogProcessor::learnDef (i).name) + " (" + ccText (i) + ")", i >= 11 ? icoSwitch : icoMidi, true, lt == i);
     midi.addSeparator();
     midi.addItem (1200, "Cancel MIDI learn", lt >= 0);
     midi.addItem (1201, "Clear all MIDI assignments");
     midi.addSeparator();
     NineHandsWindow::addMidiFootswitchMode (midi, proc.latchingPedals.load());
-    midi.addSeparator();
-    NineHandsWindow::addProgramChangeInfo (midi);
     menu.addSubMenu ("MIDI", midi);
     menu.addSeparator();
 
@@ -823,9 +814,8 @@ void FogEditor::showContextMenu (int learnIdx)
             if (sz >= 0) { pr.uiSizeIdx = inst; ed.setWindowHeight (sizeHeight (sz)); return; }
             if (const int pc = NineHandsWindow::handleGlow (r, JucePlugin_Name)) { ed.setGlowPercent (pc); ed.flash ("Glow  " + String (pc) + " %"); return; }
             if (r >= 200 && r < 300) pr.applyFactory (r - 200);
-            else if (r == 300) { pr.restoreFactorySlots(); ed.flash ("Factory sounds restored in presets 1-8"); }
-            else if (r >= 400 && r < 408) pr.loadPreset (r - 400);
-            else if (r >= 100 && r < 108) { pr.savePreset (r - 100); ed.flash ("Saved to preset " + String (r - 99)); }
+            else if (r > 500 && r < 510) { if (NineHandsUserPresets::load (pr, JucePlugin_Name, r - 500)) ed.flash ("User " + String (r - 500) + " loaded"); }
+            else if (r > 600 && r < 610) { if (NineHandsUserPresets::save (pr, JucePlugin_Name, r - 600, { FogIDs::bypass })) ed.flash ("Saved to User " + String (r - 600)); }
             else if (r == NineHandsWindow::idLatch)     pr.latchingPedals = true;
             else if (r == NineHandsWindow::idMomentary) pr.latchingPedals = false;
             else if (r >= 1000 && r < 1000 + FogProcessor::numLearn)
