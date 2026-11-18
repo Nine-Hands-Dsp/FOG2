@@ -2,6 +2,10 @@ name: Build Fog Z VST3 (Windows + macOS)
 on:
   push:
   workflow_dispatch:
+    inputs:
+      mac_runner:
+        description: 'Mac de GitHub : macos-15 (Apple Silicon) ou macos-15-intel'
+        default: 'macos-15'
 
 jobs:
   windows:
@@ -20,7 +24,7 @@ jobs:
           path: build/*_artefacts/Release/VST3/
 
   macos:
-    runs-on: macos-15-intel   # Mac Intel : file Apple Silicon saturée (binaire universel quand même)
+    runs-on: ${{ inputs.mac_runner || 'macos-15' }}   # Mac Apple Silicon par defaut (binaire universel) ; mac-retry.yml relance sur macos-15-intel si aucune machine n'est prise
     steps:
       - uses: actions/checkout@v5
       - name: Configure
